@@ -1,13 +1,37 @@
 import os
 
-all_state = []
-state_cursor = 0
 ui_entry_func = None
 rerender_needed = False
+
+all_state = []
+state_cursor = 0
+
+all_effects = []
+effects_cursor = 0
 
 
 def clear_terminal():
     os.system("cls" if os.name == "nt" else "printf '\033c'")
+
+
+def use_effect(func, dependencies=[]):
+    global effects_cursor
+    global all_effects
+
+    if not len(all_effects) - 1 >= effects_cursor:
+        all_effects.append([func, dependencies])
+        if len(dependencies) == 0:
+            func()
+    else:
+        changed = False
+        for i, d in enumerate(dependencies):
+            if d != all_effects[effects_cursor][1]:
+                changed = True
+                all_effects[effects_cursor][1] = d
+        if changed:
+            func()
+
+    effects_cursor += 1
 
 
 def use_state(initial_state="") -> tuple:
@@ -41,8 +65,9 @@ def use_state(initial_state="") -> tuple:
 
 def rerender():
     """reset the cursor and clear terminal, then call the entry function to render UI"""
-    global state_cursor
+    global state_cursor, effects_cursor
     state_cursor = 0
+    effects_cursor = 0
     clear_terminal()
     # print(all_state)
     ui_entry_func()
