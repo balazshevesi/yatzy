@@ -22,6 +22,7 @@
 ## Higher level problems
 - Cli rendering system (React.js-like?)
 - Python formatter
+- Solve project management system
 
 ## Requirements
 - Multiple player support
