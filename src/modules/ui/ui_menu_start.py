@@ -1,6 +1,6 @@
 from modules.prompt import prompt
 from modules import renderer as r
-from modules.art import yatzy_banner
+from modules.assets import yatzy_banner
 
 import time
 
