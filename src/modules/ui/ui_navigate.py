@@ -1,4 +1,4 @@
-from modules.prompt import prompt
+from modules.helpers import prompt
 from modules import renderer as r
 
 

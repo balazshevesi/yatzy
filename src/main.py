@@ -1,5 +1,5 @@
 from modules import renderer as r
-from modules.prompt import prompt
+from modules.helpers import prompt
 from modules.assets import yatzy_banner
 from modules.hooks.use_navigation import use_navigation
 from modules.ui.ui_game import ui_game
@@ -9,7 +9,8 @@ import time
 
 
 def ui_app():
-    navigator = use_navigation("start")
+    # navigator = use_navigation("start")
+    navigator = use_navigation("start/main_menu/play_local/pvc")
 
     print(navigator["get_path"]())
     print()

@@ -6,6 +6,7 @@ Project Description
 
 ### Todo
 
+- [ ] rework "promp" function and make the navigator global (kinda like a contex)  
 - [ ] make pretty  
 - [ ] Store high-score-list-file (.json, .yaml, .md)  
 - [ ] Undo redo system  
