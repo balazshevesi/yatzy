@@ -8,13 +8,21 @@ import random as rnd
 import time
 
 
+def get_total_p_from_scorecard(scoreboard):
+    total = 0
+    for k, v in scoreboard.items():
+        if v is not None:
+            total += v
+    total += get_upper_section_bonus(scoreboard)
+    return total
+
+
 def scorecards_are_filled(all_scorecards):
     filled_in_score_cards = []
     for scorecard in all_scorecards:
         scorecard_is_fully_filled_in = False
         scorecard_values = []
         empty_score_card = create_scorecard()
-        del empty_score_card["upper_section_bonus"]
         for k, v in empty_score_card.items():
             scorecard_values.append(scorecard[k])
         if None in scorecard_values:
@@ -33,6 +41,7 @@ def make_scorecard_pretty(checked_scorecard, scorecard):
             return_string += f"{k:{"_"}<16}{scorecard[k]:<2} LOCKED \n"
         elif not k == "upper_section_bonus":
             return_string += f"{k:{"_"}<16}{v:<5} \n"
+    return_string += f"{'total':{"_"}<16}{get_total_p_from_scorecard(scorecard):<5} \n"
     return return_string
 
 

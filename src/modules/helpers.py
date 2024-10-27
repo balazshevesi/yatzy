@@ -97,14 +97,13 @@ def get_yatzy(thrown_d):
         return 0
 
 
-def get_upper_section_bonus(thrown_d):
+def get_upper_section_bonus(scorecard):
     bonus_sum = 0
-    bonus_sum += thrown_d.count(1) * 1
-    bonus_sum += thrown_d.count(2) * 2
-    bonus_sum += thrown_d.count(3) * 3
-    bonus_sum += thrown_d.count(4) * 4
-    bonus_sum += thrown_d.count(5) * 5
-    bonus_sum += thrown_d.count(6) * 6
+    for k, v in scorecard.items():
+        match k:
+            case "ones" | "twos" | "threes" | "fours" | "fives" | "sixes":
+                if v is not None:
+                    bonus_sum += v
     if bonus_sum >= 63:
         return 50
     else:
@@ -131,10 +130,13 @@ def create_scorecard():
         "full_house": None,  # any set of three combined with a different pair, score: Sum of all the dice
         "chance": None,  # any combination of dice, score: sum of all the dice
         "yatzy": None,  # all five dice with the same number, score: 50 points
-        "upper_section_bonus": None,  # all five dice with the same number, score: 50 points
+        # "upper_section_bonus": None,  # all five dice with the same number, score: 50 points
     }
 
 
+# returns a dictionary that includes the same keys as "create_scorecard()"
+# the values are the points that that combination of dice would yield
+# if the value returned any key is None, then that's because the scoreboard already has that combination locked-in
 def get_checked_scorecard(scoreboard, thrown_d):
     return {
         "ones": thrown_d.count(1) * 1 if scoreboard["ones"] is None else None,
@@ -169,7 +171,7 @@ def get_checked_scorecard(scoreboard, thrown_d):
         ),
         "chance": get_chance(thrown_d) if scoreboard["chance"] is None else None,
         "yatzy": get_yatzy(thrown_d) if scoreboard["yatzy"] is None else None,
-        "upper_section_bonus": (get_upper_section_bonus(thrown_d)),
+        # "upper_section_bonus": (get_upper_section_bonus(thrown_d)),
     }
 
 
