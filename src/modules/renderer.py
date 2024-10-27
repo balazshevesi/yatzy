@@ -20,8 +20,7 @@ def use_effect(func, dependencies=[]):
 
     if not len(all_effects) - 1 >= effects_cursor:
         all_effects.append([func, dependencies])
-        if len(dependencies) == 0:
-            func()
+        func()
     else:
         changed = False
         for i, d in enumerate(dependencies):

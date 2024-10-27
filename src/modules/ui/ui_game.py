@@ -48,8 +48,9 @@ def make_scorecard_pretty(checked_scorecard, scorecard):
 def ui_game(navigator):
     game_difficulty, set_game_difficulty = r.use_state(None)
 
+    players, set_players = r.use_state(["balazs", "johnnyD.", "john pork"])
+    p_turn_i, set_p_turn_i = r.use_state(0)
     game_is_running, set_game_is_running = r.use_state(False)
-    is_players_turn, set_is_players_turn = r.use_state(True)
 
     # initiate state for dice
     d_rerolls, set_d_rerolls = r.use_state(0)
@@ -58,6 +59,12 @@ def ui_game(navigator):
     d_need_rolling, set_d_need_rolling = r.use_state(True)
 
     all_scorecards, set_all_scorecards = r.use_state([create_scorecard()])
+
+    def init_player_scorecards():
+        
+        pass
+
+    r.use_effect()
 
     # initiate state for datetime
     date_time, set_date_time = r.use_state()
@@ -95,8 +102,7 @@ def ui_game(navigator):
         print(all_scorecards())
         prompt("ya done")
 
-    if game_is_running() and is_players_turn():
-
+    if game_is_running():
         if d_need_rolling():
             roll_dice(
                 set_thrown_d=set_thrown_d,
