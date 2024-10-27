@@ -7,6 +7,12 @@ from modules.ui.ui_menu_start import ui_menu_start
 from modules.ui.ui_navigate import ui_navigate
 import time
 
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from modules.helpers import prompt  # Your normal imports here
+
 
 def ui_app():
     # navigator = use_navigation("start")

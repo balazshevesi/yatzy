@@ -6,6 +6,9 @@ Project Description
 
 ### Todo
 
+- [ ] build player vs player  
+- [ ] build player vs computer  
+- [ ] make scorecard prettier  
 - [ ] rework "promp" function and make the navigator global (kinda like a contex)  
 - [ ] make pretty  
 - [ ] Store high-score-list-file (.json, .yaml, .md)  
@@ -25,4 +28,5 @@ Project Description
 - [x] Python formatter // black  
 - [x] Solve project management system // TODO.md  
 - [x] Cli rendering system (React.js-like?)  
+- [x] write functions for checking score  
 

@@ -1,15 +1,4 @@
-from modules.helpers import (
-    prompt,
-    get_score_one_pair,
-    get_score_two_pair,
-    get_three_of_a_kind,
-    get_chance,
-    get_full_house,
-    get_large_straight,
-    get_small_straight,
-    get_upper_section_bonus,
-    get_yatzy,
-)
+from modules.helpers import *
 from modules import renderer as r
 from modules.assets import yatzy_banner
 from datetime import datetime
@@ -19,75 +8,32 @@ import random as rnd
 import time
 
 
-def throw_dice():
-    return rnd.randint(1, 6)
+def scorecards_are_filled(all_scorecards):
+    filled_in_score_cards = []
+    for scorecard in all_scorecards:
+        scorecard_is_fully_filled_in = False
+        scorecard_values = []
+        empty_score_card = create_scorecard()
+        del empty_score_card["upper_section_bonus"]
+        for k, v in empty_score_card.items():
+            scorecard_values.append(scorecard[k])
+        if None in scorecard_values:
+            filled_in_score_cards.append(False)
+        else:
+            filled_in_score_cards.append(True)
+    if not False in filled_in_score_cards:
+        return True
+    return False
 
 
-def make_dice_pretty(dice_lst, locked_dice_lst):
-    sprite_height = 6
-    sprite_width = 11
-
-    final_string = ""
-
-    for i in range(1, sprite_height, 1):
-        final_string += f"{str(i) + (' LOCKED' if locked_dice_lst[i - 1] else ''):^11}"
-
-    for i in range(sprite_height):  # loop through the height of the sprite
-        for e in dice_lst:  # loop through all the dice
-            final_string += dice[e - 1].split("\n")[i]
-        final_string += "\n"  # after each line is complete, add a new-line character
-    return final_string
-
-
-def roll_dice(set_thrown_d, thrown_d, locked_d, set_d_rerolls, d_rerolls):
-    set_thrown_d(
-        [
-            throw_dice() if not locked_d[0] else thrown_d[0],
-            throw_dice() if not locked_d[1] else thrown_d[1],
-            throw_dice() if not locked_d[2] else thrown_d[2],
-            throw_dice() if not locked_d[3] else thrown_d[3],
-            throw_dice() if not locked_d[4] else thrown_d[4],
-        ]
-    )
-    set_d_rerolls(d_rerolls + 1)
-
-
-def get_scoreboard_template():
-    return {
-        "ones": None,  # the sum of all dice showing the number 1
-        "twos": None,  # the sum of all dice showing the number 2
-        "threes": None,  # the sum of all dice showing the number 3
-        "fours": None,  # the sum of all dice showing the number 4
-        "fives": None,  # the sum of all dice showing the number 5
-        "sixes": None,  # the sum of all dice showing the number 6
-        "one_pair": None,  # two dice showing the same number, score: sum of those two dice
-        "two_pair": None,  # two different pairs of dice. score: sum of dice in those two pairs
-        "three_of_a_kind": None,  # three dice showing the same number, score: sum of those three dice
-        "four_of_a_kind": None,  # four dice with the same number, score: Sum of those four dice
-        "small_straight": None,  # the combination 1-2-3-4-5, score: 15 points (sum of all the dice)
-        "large_straight": None,  # the combination 2-3-4-5-6, score: 20 points (sum of all the dice)
-        "full_house": None,  # any set of three combined with a different pair, score: Sum of all the dice
-        "chance": None,  # any combination of dice, score: sum of all the dice
-        "yatzy": None,  # all five dice with the same number, score: 50 points
-    }
-
-
-def get_scoreboard_status(score_board, thrown_d):
-    ones = thrown_d.count(1) * 1
-    twos = thrown_d.count(2) * 2
-    threes = thrown_d.count(3) * 3
-    fours = thrown_d.count(4) * 4
-    fives = thrown_d.count(5) * 5
-    sixes = thrown_d.count(6) * 6
-    one_pair = get_score_one_pair(thrown_d)
-    two_pair = get_score_two_pair(thrown_d)
-    three_of_a_kind = get_three_of_a_kind(thrown_d)
-    small_straight = get_small_straight(thrown_d)
-    large_straight = get_large_straight(thrown_d)
-    full_house = get_full_house(thrown_d)
-    chance = get_chance(thrown_d)
-    yatzy = get_yatzy(thrown_d)
-    upper_section_bonus = get_upper_section_bonus(thrown_d)
+def make_scorecard_pretty(checked_scorecard, scorecard):
+    return_string = ""
+    for k, v in checked_scorecard.items():
+        if v is None:
+            return_string += f"{k:{"_"}<16}{scorecard[k]:<2} LOCKED \n"
+        elif not k == "upper_section_bonus":
+            return_string += f"{k:{"_"}<16}{v:<5} \n"
+    return return_string
 
 
 def ui_game(navigator):
@@ -102,9 +48,7 @@ def ui_game(navigator):
     locked_d, set_locked_d = r.use_state([False, False, False, False, False])
     d_need_rolling, set_d_need_rolling = r.use_state(True)
 
-    all_scoreboards, set_all_scoreboards = r.use_state(
-        [get_scoreboard_template(), get_scoreboard_template()]
-    )
+    all_scorecards, set_all_scorecards = r.use_state([create_scorecard()])
 
     # initiate state for datetime
     date_time, set_date_time = r.use_state()
@@ -136,7 +80,14 @@ def ui_game(navigator):
         except:
             set_err_msg("please pick a valid number")
 
+    # check if game is finished
+    if scorecards_are_filled(all_scorecards()):
+        set_game_is_running(False)
+        print(all_scorecards())
+        prompt("ya done")
+
     if game_is_running() and is_players_turn():
+
         if d_need_rolling():
             roll_dice(
                 set_thrown_d=set_thrown_d,
@@ -150,10 +101,43 @@ def ui_game(navigator):
 
         print(f"{d_rerolls()-1}/2 rerolls used", end="\n\n")
 
-        usr_input = prompt(
-            "press enter to re-roll or input the index of the dice you wish to lock or unlock: "
+        print("your scorecard:")
+        print(
+            make_scorecard_pretty(
+                get_checked_scorecard(all_scorecards()[0], thrown_d()),
+                all_scorecards()[0],
+            )
         )
-        if not usr_input == "":
+
+        # if bool(err_msg()):
+        #     print(err_msg())
+        prompt_text = (
+            "press enter to re-roll, specify dice indices to lock/unlock, or "
+            if d_rerolls() <= 2
+            else ""
+        )
+        prompt_text += "type a combination name to select: "
+        usr_input = prompt(prompt_text)
+
+        # if input is combination name
+        if usr_input in create_scorecard() and not usr_input == "upper_section_bonus":
+            new_scorecard_state = {}
+            for k, v in all_scorecards()[0].items():
+                if k == usr_input:
+                    if all_scorecards()[0][k] is None:
+                        new_scorecard_state[k] = get_checked_scorecard(
+                            all_scorecards()[0], thrown_d()
+                        )[usr_input]
+                    else:
+                        new_scorecard_state[k] = v
+                else:
+                    new_scorecard_state[k] = v
+            set_all_scorecards([new_scorecard_state])
+            set_locked_d([False, False, False, False, False])
+            set_d_need_rolling(True)
+            set_d_rerolls(0)
+        # if input is lock-in or unlock
+        elif not usr_input == "":
             set_d_need_rolling(False)
             indexes_to_switch = []
             for c in list(usr_input):
@@ -166,5 +150,9 @@ def ui_game(navigator):
                 else:
                     new_state.append(e)
             set_locked_d(new_state)
+        # if input is re-roll
         else:
-            set_d_need_rolling(True)
+            if d_rerolls() <= 2:
+                set_d_need_rolling(True)
+            else:
+                set_d_need_rolling(False)

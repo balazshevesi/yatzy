@@ -1,3 +1,7 @@
+import random as rnd
+from .assets import dice
+
+
 def prompt(str: str):
     input_value = input(str)
     match input_value:
@@ -9,7 +13,7 @@ def prompt(str: str):
 # * yatzy score helpers:
 
 
-def get_score_one_pair(thrown_d):
+def get_one_pair(thrown_d):
     return_value = 0
     for i in range(1, 7, 1):
         if thrown_d.count(i) >= 2:
@@ -19,7 +23,7 @@ def get_score_one_pair(thrown_d):
     return return_value
 
 
-def get_score_two_pair(thrown_d):
+def get_two_pair(thrown_d):
     first_pair_sum = 0
     for i in range(1, 7, 1):
         if thrown_d.count(i) == 2:
@@ -63,7 +67,7 @@ def get_large_straight(thrown_d):
 
 def get_full_house(thrown_d):
     three_of_a_kind_sum = get_three_of_a_kind(thrown_d)
-    pair_sum = get_score_one_pair(thrown_d)
+    pair_sum = get_one_pair(thrown_d)
     if three_of_a_kind_sum == 0 or pair_sum == 0:
         return 0
     if three_of_a_kind_sum / 3 == pair_sum / 2:
@@ -87,10 +91,14 @@ def get_yatzy(thrown_d):
         or thrown_d.count(5) == 5
         or thrown_d.count(6) == 5
     )
-    return 50
+    if is_yatzy:
+        return 50
+    else:
+        return 0
 
 
 def get_upper_section_bonus(thrown_d):
+    bonus_sum = 0
     bonus_sum += thrown_d.count(1) * 1
     bonus_sum += thrown_d.count(2) * 2
     bonus_sum += thrown_d.count(3) * 3
@@ -99,3 +107,103 @@ def get_upper_section_bonus(thrown_d):
     bonus_sum += thrown_d.count(6) * 6
     if bonus_sum >= 63:
         return 50
+    else:
+        return 0
+
+
+# * yatzy scorecard helpers
+
+
+def create_scorecard():
+    return {
+        "ones": None,  # the sum of all dice showing the number 1
+        "twos": None,  # the sum of all dice showing the number 2
+        "threes": None,  # the sum of all dice showing the number 3
+        "fours": None,  # the sum of all dice showing the number 4
+        "fives": None,  # the sum of all dice showing the number 5
+        "sixes": None,  # the sum of all dice showing the number 6
+        "one_pair": None,  # two dice showing the same number, score: sum of those two dice
+        "two_pair": None,  # two different pairs of dice. score: sum of dice in those two pairs
+        "three_of_a_kind": None,  # three dice showing the same number, score: sum of those three dice
+        "four_of_a_kind": None,  # four dice with the same number, score: Sum of those four dice
+        "small_straight": None,  # the combination 1-2-3-4-5, score: 15 points (sum of all the dice)
+        "large_straight": None,  # the combination 2-3-4-5-6, score: 20 points (sum of all the dice)
+        "full_house": None,  # any set of three combined with a different pair, score: Sum of all the dice
+        "chance": None,  # any combination of dice, score: sum of all the dice
+        "yatzy": None,  # all five dice with the same number, score: 50 points
+        "upper_section_bonus": None,  # all five dice with the same number, score: 50 points
+    }
+
+
+def get_checked_scorecard(scoreboard, thrown_d):
+    return {
+        "ones": thrown_d.count(1) * 1 if scoreboard["ones"] is None else None,
+        "twos": thrown_d.count(2) * 2 if scoreboard["twos"] is None else None,
+        "threes": thrown_d.count(3) * 3 if scoreboard["threes"] is None else None,
+        "fours": thrown_d.count(4) * 4 if scoreboard["fours"] is None else None,
+        "fives": thrown_d.count(5) * 5 if scoreboard["fives"] is None else None,
+        "sixes": thrown_d.count(6) * 6 if scoreboard["sixes"] is None else None,
+        "one_pair": (
+            get_one_pair(thrown_d) if scoreboard["one_pair"] is None else None
+        ),
+        "two_pair": (
+            get_two_pair(thrown_d) if scoreboard["two_pair"] is None else None
+        ),
+        "three_of_a_kind": (
+            get_three_of_a_kind(thrown_d)
+            if scoreboard["three_of_a_kind"] is None
+            else None
+        ),
+        "small_straight": (
+            get_small_straight(thrown_d)
+            if scoreboard["small_straight"] is None
+            else None
+        ),
+        "large_straight": (
+            get_large_straight(thrown_d)
+            if scoreboard["large_straight"] is None
+            else None
+        ),
+        "full_house": (
+            get_full_house(thrown_d) if scoreboard["full_house"] is None else None
+        ),
+        "chance": get_chance(thrown_d) if scoreboard["chance"] is None else None,
+        "yatzy": get_yatzy(thrown_d) if scoreboard["yatzy"] is None else None,
+        "upper_section_bonus": (get_upper_section_bonus(thrown_d)),
+    }
+
+
+# * dice helpers
+
+
+def throw_dice():
+    return rnd.randint(1, 6)
+
+
+def make_dice_pretty(dice_lst, locked_dice_lst):
+    sprite_height = 6
+    sprite_width = 11
+
+    final_string = ""
+
+    for i in range(1, sprite_height, 1):
+        final_string += f"{str(i) + (' LOCKED' if locked_dice_lst[i - 1] else ''):^11}"
+
+    for i in range(sprite_height):  # loop through the height of the sprite
+        for e in dice_lst:  # loop through all the dice
+            final_string += dice[e - 1].split("\n")[i]
+        final_string += "\n"  # after each line is complete, add a new-line character
+    return final_string
+
+
+def roll_dice(set_thrown_d, thrown_d, locked_d, set_d_rerolls, d_rerolls):
+    set_thrown_d(
+        [
+            throw_dice() if not locked_d[0] else thrown_d[0],
+            throw_dice() if not locked_d[1] else thrown_d[1],
+            throw_dice() if not locked_d[2] else thrown_d[2],
+            throw_dice() if not locked_d[3] else thrown_d[3],
+            throw_dice() if not locked_d[4] else thrown_d[4],
+        ]
+    )
+    set_d_rerolls(d_rerolls + 1)
