@@ -129,7 +129,8 @@ def ui_game(navigator):
         usr_input = prompt(prompt_text)
 
         # if input is combination name
-        if usr_input in create_scorecard() and not usr_input == "upper_section_bonus":
+        if usr_input in create_scorecard():
+            set_d_need_rolling(False)
             new_scorecard_state = {}
             for k, v in all_scorecards()[0].items():
                 if k == usr_input:
@@ -137,14 +138,15 @@ def ui_game(navigator):
                         new_scorecard_state[k] = get_checked_scorecard(
                             all_scorecards()[0], thrown_d()
                         )[usr_input]
+                        set_d_need_rolling(True)
+                        set_d_rerolls(0)
+                        set_locked_d([False, False, False, False, False])
                     else:
                         new_scorecard_state[k] = v
                 else:
                     new_scorecard_state[k] = v
             set_all_scorecards([new_scorecard_state])
-            set_locked_d([False, False, False, False, False])
-            set_d_need_rolling(True)
-            set_d_rerolls(0)
+
         # if input is lock-in or unlock
         elif not usr_input == "":
             set_d_need_rolling(False)
