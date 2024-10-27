@@ -18,16 +18,17 @@ def use_effect(func, dependencies=[]):
     global effects_cursor
     global all_effects
 
-    if not len(all_effects) - 1 >= effects_cursor:
+    if not len(all_effects) - 1 >= effects_cursor:  # if initializing use_effect
         all_effects.append([func, dependencies])
         func()
-    else:
+    else:  # if use_effect is called for the many-th time
         changed = False
         for i, d in enumerate(dependencies):
-            if d != all_effects[effects_cursor][1]:
+            if not d == all_effects[effects_cursor][1]:
                 changed = True
                 all_effects[effects_cursor][1] = d
         if changed:
+            # input("deps changed")
             func()
 
     effects_cursor += 1

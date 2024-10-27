@@ -51,6 +51,16 @@ def get_three_of_a_kind(thrown_d):
     return return_value
 
 
+def get_four_of_a_kind(thrown_d):
+    return_value = 0
+    for i in range(1, 7, 1):
+        if thrown_d.count(i) >= 4:
+            four_o_a_k_sum = i * 4
+            if four_o_a_k_sum > return_value:
+                return_value = four_o_a_k_sum
+    return return_value
+
+
 def get_small_straight(thrown_d):
     required_numbers = {1, 2, 3, 4, 5}
     if required_numbers.issubset(thrown_d):
@@ -154,6 +164,11 @@ def get_checked_scorecard(scoreboard, thrown_d):
         "three_of_a_kind": (
             get_three_of_a_kind(thrown_d)
             if scoreboard["three_of_a_kind"] is None
+            else None
+        ),
+        "four_of_a_kind": (
+            get_four_of_a_kind(thrown_d)
+            if scoreboard["four_of_a_kind"] is None
             else None
         ),
         "small_straight": (
