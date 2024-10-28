@@ -6,79 +6,22 @@ from ..assets import dice
 import random as rnd
 
 import time
+import json
 
 
-def scorecards_are_filled(all_scorecards):
-    if all_scorecards is not type(all_scorecards) == list:
-        return False
-    filled_in_score_cards = []
-    for scorecard in all_scorecards:
-        scorecard_is_fully_filled_in = False
-        scorecard_values = []
-        empty_score_card = create_scorecard()
-        for k, v in empty_score_card.items():
-            scorecard_values.append(scorecard[k])
-        if None in scorecard_values:
-            filled_in_score_cards.append(False)
-        else:
-            filled_in_score_cards.append(True)
-    if not False in filled_in_score_cards:
-        return True
-    return False
-
-
-def get_longest_s_in_lst(lst):
-    longest_string = ""
-    for string in lst:
-        if len(string) > len(longest_string):
-            longest_string = string
-    return longest_string
-
-
-def make_scorecards_pretty(all_scorecards, players, p_turn_i, thrown_d):
-    rs = ""
-
-    table_l_side_width = 17
-    player_n_width = len(get_longest_s_in_lst(players)) + 3
-
-    # header of the table
-    rs += f"{' ' : <{table_l_side_width-1}}┃"
-    for name in players:
-        rs += f"{name:^{player_n_width-1}}┃"
-    rs += "\n"
-
-    # contents of the table
-    for i, (k, v) in enumerate(create_scorecard().items()):
-        rs += f"{k:{" "}<{table_l_side_width-2}} ┃"
-        for it, name in enumerate(players):
-            # if combination is already checked
-            if get_checked_scorecard(all_scorecards[it], thrown_d)[k] is None:
-                rs += f"{(str(all_scorecards[it][k]) + " X"):^{player_n_width-1}}┃"
-            elif it == p_turn_i:
-                rs += f"{get_checked_scorecard(all_scorecards[it], thrown_d)[k]:^{player_n_width-1}}┃"
-            else:
-                rs += f"{" ":^{player_n_width-1}}┃"
-        rs += "\n"
-
-    # bonus row of table
-    rs += f"{"bonus" : <{table_l_side_width-1}}┃"
-    for i, name in enumerate(players):
-        rs += f"{get_upper_section_bonus(all_scorecards[i]):^{player_n_width-1}}┃"
-    rs += "\n"
-
-    # total row of table
-    rs += f"{"total" : <{table_l_side_width-1}}┃"
-    for i, name in enumerate(players):
-        rs += f"{get_total_p(all_scorecards[i]):^{player_n_width-1}}┃"
-    rs += "\n"
-
-    return rs
+def add_score_to_file(name: str, score: int):
+    now = datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
+    with open("high_scores.json", "r+") as file:
+        json_data = json.load(file)
+        json_data["high_scores"].append([name, score, now])
+        json_data["high_scores"].sort(key=lambda x: x[1], reverse=True)
+        file.seek(0)
+        json.dump(json_data, file, indent=4)
+        file.truncate()
 
 
 def ui_game(navigator):
-    game_difficulty, set_game_difficulty = r.use_state(None)
-
-    players, set_players = r.use_state(["balazs", "john pork"])
+    players, set_players = r.use_state([""])
     p_turn_i, set_p_turn_i = r.use_state(0)
     game_is_running, set_game_is_running = r.use_state(False)
 
@@ -88,7 +31,7 @@ def ui_game(navigator):
     locked_d, set_locked_d = r.use_state([False, False, False, False, False])
     d_need_rolling, set_d_need_rolling = r.use_state(True)
 
-    all_scorecards, set_all_scorecards = r.use_state()
+    all_scorecards, set_all_scorecards = r.use_state([create_scorecard()])
 
     def init_player_scorecards():
         new_state_for_all_scorecards = []
@@ -96,10 +39,16 @@ def ui_game(navigator):
             new_state_for_all_scorecards.append(create_scorecard())
         set_all_scorecards(new_state_for_all_scorecards)
 
-    r.use_effect(init_player_scorecards, [players()])
+    # r.use_effect(init_player_scorecards, [players()])
 
     def rotate_players():
         set_p_turn_i((p_turn_i() + 1) % len(players()))
+
+        # handle bot stuffs
+        match players()[p_turn_i()]:
+            case "bot_easy" | "bot_normal" | "bot_hard":
+                # TODO write code for bot moves
+                rotate_players()
 
     # initiate state for datetime
     date_time, set_date_time = r.use_state()
@@ -107,34 +56,26 @@ def ui_game(navigator):
 
     err_msg, set_err_msg = r.use_state("")
 
-    # set difficulty
+    # set players
     if not game_is_running():
-        print("select difficulty: ")
-        print()
-        print("0 - easy")
-        print("1 - normal")
-        print("2 - hard")
-        print()
-        if err_msg():
-            print(err_msg())
-        usr_input = prompt("enter your choice: ")
-        try:
-            usr_input = int(usr_input)
-            if usr_input > 2 or usr_input < 0:
-                set_err_msg("please pick a valid number")
-                # navigator["reload"]()
-            else:
-                set_err_msg("")
-                set_game_difficulty(usr_input)
-                set_game_is_running(True)
-                return
-        except:
-            set_err_msg("please pick a valid number")
+        usr_input = prompt(
+            "Enter player names separated by commas. To add bots, use 'bot_easy', 'bot_normal', or 'bot_hard': "
+        )
+        set_players([player_name.strip() for player_name in usr_input.split(",")])
+        set_game_is_running(True)
+        init_player_scorecards()
+        return  # needs to be returned in-order for the effect (that sets the scorecards) to run, otherwise there will be an error :(
 
     # check if game is finished
-    if scorecards_are_filled(all_scorecards()):
+    if scorecards_are_filled(all_scorecards()) and game_is_running():
         set_game_is_running(False)
-        print(all_scorecards())
+        print("players()", players())
+        print("all_scorecards()", all_scorecards())
+        for i, player in enumerate(players()):
+            add_score_to_file(player, get_total_p(all_scorecards()[i]))
+            pass
+        # TODO write a function that adds the name and the score to the json file
+        # TODO print who actually won
         prompt("ya done")
 
     if game_is_running():

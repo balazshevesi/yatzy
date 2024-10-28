@@ -1,7 +1,7 @@
 from .. import renderer as r
 
 
-def use_navigation(initial_path: str):
+def use_navigation(initial_path=""):
     nav, set_nav = r.use_state(initial_path)
 
     def go_back():

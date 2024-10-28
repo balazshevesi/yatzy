@@ -15,35 +15,25 @@ from modules.helpers import prompt  # Your normal imports here
 
 
 def ui_app():
-    # navigator = use_navigation("start")
-    navigator = use_navigation("start/main_menu/play_local/pvc")
-
-    print(navigator["get_path"]())
-    print()
-    print()
+    navigator = use_navigation("start")
 
     match navigator["get_path"]():
         case "start":
+            print(navigator["get_path"]())
             ui_menu_start(navigator)
         case "start/main_menu":
+            print(navigator["get_path"]())
             ui_navigate(
                 navigator,
                 "select an alternative: ",
                 (
                     ("play local", "play_local"),
-                    ("play online (not working yet)", "play_online"),
+                    ("play online (coming soon)", "play_online"),
                     ("credits", "credits"),
                     ("help", "help"),
                 ),
             )
         case "start/main_menu/play_local":
-            ui_navigate(
-                navigator,
-                "select an alternative: ",
-                (("play against computer", "pvc"), ("play against player", "pvp")),
-            )
-        case "start/main_menu/play_local/pvc":
-            # print("bruh")
             ui_game(navigator)
 
 

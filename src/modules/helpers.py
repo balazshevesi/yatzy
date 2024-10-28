@@ -10,10 +10,18 @@ def prompt(str: str):
     return input_value
 
 
+def get_longest_s_in_lst(lst):
+    longest_string = ""
+    for string in lst:
+        if len(string) > len(longest_string):
+            longest_string = string
+    return longest_string
+
+
 # * yatzy score helpers:
 
 
-def get_one_pair(thrown_d):
+def get_one_pair(thrown_d) -> int:
     return_value = 0
     for i in range(1, 7, 1):
         if thrown_d.count(i) >= 2:
@@ -23,7 +31,7 @@ def get_one_pair(thrown_d):
     return return_value
 
 
-def get_two_pair(thrown_d):
+def get_two_pair(thrown_d) -> int:
     first_pair_sum = 0
     for i in range(1, 7, 1):
         if thrown_d.count(i) == 2:
@@ -41,7 +49,7 @@ def get_two_pair(thrown_d):
     return first_pair_sum + second_pair_sum
 
 
-def get_three_of_a_kind(thrown_d):
+def get_three_of_a_kind(thrown_d) -> int:
     return_value = 0
     for i in range(1, 7, 1):
         if thrown_d.count(i) >= 3:
@@ -51,7 +59,7 @@ def get_three_of_a_kind(thrown_d):
     return return_value
 
 
-def get_four_of_a_kind(thrown_d):
+def get_four_of_a_kind(thrown_d) -> int:
     return_value = 0
     for i in range(1, 7, 1):
         if thrown_d.count(i) >= 4:
@@ -61,21 +69,21 @@ def get_four_of_a_kind(thrown_d):
     return return_value
 
 
-def get_small_straight(thrown_d):
+def get_small_straight(thrown_d) -> int:
     required_numbers = {1, 2, 3, 4, 5}
     if required_numbers.issubset(thrown_d):
         return 15
     return 0
 
 
-def get_large_straight(thrown_d):
+def get_large_straight(thrown_d) -> int:
     required_numbers = {2, 3, 4, 5, 6}
     if required_numbers.issubset(thrown_d):
         return 20
     return 0
 
 
-def get_full_house(thrown_d):
+def get_full_house(thrown_d) -> int:
     three_of_a_kind_sum = get_three_of_a_kind(thrown_d)
     pair_sum = get_one_pair(thrown_d)
 
@@ -86,17 +94,17 @@ def get_full_house(thrown_d):
     return three_of_a_kind_sum + pair_sum
 
 
-def get_chance(thrown_d):
+def get_chance(thrown_d) -> int:
     return sum(thrown_d)
 
 
-def get_yatzy(thrown_d):
+def get_yatzy(thrown_d) -> int:
     if len(set(thrown_d)) == 1:  # All dice are the same
         return 50
     return 0
 
 
-def get_upper_section_bonus(scorecard):
+def get_upper_section_bonus(scorecard) -> int:
     bonus_sum = 0
     for k, v in scorecard.items():
         match k:
@@ -109,7 +117,7 @@ def get_upper_section_bonus(scorecard):
         return 0
 
 
-def get_total_p(scorecard):
+def get_total_p(scorecard) -> int:
     total = 0
     for k, v in scorecard.items():
         if v is not None:
@@ -121,20 +129,22 @@ def get_total_p(scorecard):
 # * yatzy scorecard helpers
 
 
+# returns a dict with all the possible combinations as keys
+# since these scorecards are blank at first, all the values are set to None
 def create_scorecard():
     return {
-        "ones": None,  # the sum of all dice showing the number 1
-        "twos": None,  # the sum of all dice showing the number 2
-        "threes": None,  # the sum of all dice showing the number 3
-        "fours": None,  # the sum of all dice showing the number 4
-        "fives": None,  # the sum of all dice showing the number 5
-        "sixes": None,  # the sum of all dice showing the number 6
-        "one_pair": None,  # two dice showing the same number, score: sum of those two dice
-        "two_pair": None,  # two different pairs of dice. score: sum of dice in those two pairs
-        "three_of_a_kind": None,  # three dice showing the same number, score: sum of those three dice
-        "four_of_a_kind": None,  # four dice with the same number, score: Sum of those four dice
-        "small_straight": None,  # the combination 1-2-3-4-5, score: 15 points (sum of all the dice)
-        "large_straight": None,  # the combination 2-3-4-5-6, score: 20 points (sum of all the dice)
+        "ones": 10,  # the sum of all dice showing the number 1
+        "twos": 10,  # the sum of all dice showing the number 2
+        "threes": 10,  # the sum of all dice showing the number 3
+        "fours": 10,  # the sum of all dice showing the number 4
+        "fives": 10,  # the sum of all dice showing the number 5
+        "sixes": 10,  # the sum of all dice showing the number 6
+        "one_pair": 10,  # two dice showing the same number, score: sum of those two dice
+        "two_pair": 10,  # two different pairs of dice. score: sum of dice in those two pairs
+        "three_of_a_kind": 10,  # three dice showing the same number, score: sum of those three dice
+        "four_of_a_kind": 10,  # four dice with the same number, score: Sum of those four dice
+        "small_straight": 10,  # the combination 1-2-3-4-5, score: 15 points (sum of all the dice)
+        "large_straight": 10,  # the combination 2-3-4-5-6, score: 20 points (sum of all the dice)
         "full_house": None,  # any set of three combined with a different pair, score: Sum of all the dice
         "chance": None,  # any combination of dice, score: sum of all the dice
         "yatzy": None,  # all five dice with the same number, score: 50 points
@@ -186,6 +196,56 @@ def get_checked_scorecard(scoreboard, thrown_d):
         "yatzy": get_yatzy(thrown_d) if scoreboard["yatzy"] is None else None,
         # "upper_section_bonus": (get_upper_section_bonus(thrown_d)),
     }
+
+
+def make_scorecards_pretty(all_scorecards, players, p_turn_i, thrown_d):
+    rs = ""
+
+    table_l_side_width = 17
+    player_n_width = len(get_longest_s_in_lst(players)) + 5
+
+    # header of the table
+    rs += f"{' ' : <{table_l_side_width-1}}┃"
+    for name in players:
+        rs += f"{name:^{player_n_width-1}}┃"
+    rs += "\n"
+
+    # contents of the table
+    for i, (k, v) in enumerate(create_scorecard().items()):
+        rs += f"{k:{" "}<{table_l_side_width-2}} ┃"
+        for it, name in enumerate(players):
+            # if combination is already checked
+            if get_checked_scorecard(all_scorecards[it], thrown_d)[k] is None:
+                rs += f"{(str(all_scorecards[it][k]) + " X"):^{player_n_width-1}}┃"
+            elif it == p_turn_i:  # if combination is not the current players turn
+                rs += f"{get_checked_scorecard(all_scorecards[it], thrown_d)[k]:^{player_n_width-1}}┃"
+            else:  # if combination is not the current players turn
+                rs += f"{" ":^{player_n_width-1}}┃"
+        rs += "\n"
+
+    # bonus row of table
+    rs += f"{"bonus" : <{table_l_side_width-1}}┃"
+    for i, name in enumerate(players):
+        rs += f"{get_upper_section_bonus(all_scorecards[i]):^{player_n_width-1}}┃"
+    rs += "\n"
+
+    # total row of table
+    rs += f"{"total" : <{table_l_side_width-1}}┃"
+    for i, name in enumerate(players):
+        rs += f"{get_total_p(all_scorecards[i]):^{player_n_width-1}}┃"
+    rs += "\n"
+
+    return rs
+
+
+def scorecards_are_filled(all_scorecards: list) -> bool:
+    vals = []
+    for scorecard in all_scorecards:
+        for k, v in create_scorecard().items():
+            vals.append(scorecard[k])
+    if not None in vals:
+        return True
+    return False
 
 
 # * dice helpers
