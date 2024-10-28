@@ -78,33 +78,22 @@ def get_large_straight(thrown_d):
 def get_full_house(thrown_d):
     three_of_a_kind_sum = get_three_of_a_kind(thrown_d)
     pair_sum = get_one_pair(thrown_d)
+
     if three_of_a_kind_sum == 0 or pair_sum == 0:
         return 0
-    if three_of_a_kind_sum / 3 == pair_sum / 2:
+    if three_of_a_kind_sum // 3 == pair_sum // 2:
         return 0
     return three_of_a_kind_sum + pair_sum
 
 
 def get_chance(thrown_d):
-    sum = 0
-    for e in thrown_d:
-        sum += e
-    return sum
+    return sum(thrown_d)
 
 
 def get_yatzy(thrown_d):
-    is_yatzy = (
-        thrown_d.count(1) == 5
-        or thrown_d.count(2) == 5
-        or thrown_d.count(3) == 5
-        or thrown_d.count(4) == 5
-        or thrown_d.count(5) == 5
-        or thrown_d.count(6) == 5
-    )
-    if is_yatzy:
+    if len(set(thrown_d)) == 1:  # All dice are the same
         return 50
-    else:
-        return 0
+    return 0
 
 
 def get_upper_section_bonus(scorecard):
@@ -118,6 +107,15 @@ def get_upper_section_bonus(scorecard):
         return 50
     else:
         return 0
+
+
+def get_total_p(scorecard):
+    total = 0
+    for k, v in scorecard.items():
+        if v is not None:
+            total += v
+    total += get_upper_section_bonus(scorecard)
+    return total
 
 
 # * yatzy scorecard helpers

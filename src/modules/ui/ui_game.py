@@ -8,15 +8,6 @@ import random as rnd
 import time
 
 
-def get_total_p(scoreboard):
-    total = 0
-    for k, v in scoreboard.items():
-        if v is not None:
-            total += v
-    total += get_upper_section_bonus(scoreboard)
-    return total
-
-
 def scorecards_are_filled(all_scorecards):
     if all_scorecards is not type(all_scorecards) == list:
         return False
@@ -56,7 +47,7 @@ def make_scorecards_pretty(all_scorecards, players, p_turn_i, thrown_d):
         rs += f"{name:^{player_n_width-1}}┃"
     rs += "\n"
 
-    # # contents of the table
+    # contents of the table
     for i, (k, v) in enumerate(create_scorecard().items()):
         rs += f"{k:{" "}<{table_l_side_width-2}} ┃"
         for it, name in enumerate(players):
@@ -69,7 +60,13 @@ def make_scorecards_pretty(all_scorecards, players, p_turn_i, thrown_d):
                 rs += f"{" ":^{player_n_width-1}}┃"
         rs += "\n"
 
-    # final line of the table
+    # bonus row of table
+    rs += f"{"bonus" : <{table_l_side_width-1}}┃"
+    for i, name in enumerate(players):
+        rs += f"{get_upper_section_bonus(all_scorecards[i]):^{player_n_width-1}}┃"
+    rs += "\n"
+
+    # total row of table
     rs += f"{"total" : <{table_l_side_width-1}}┃"
     for i, name in enumerate(players):
         rs += f"{get_total_p(all_scorecards[i]):^{player_n_width-1}}┃"
@@ -154,13 +151,8 @@ def ui_game(navigator):
 
         print(f"{d_rerolls()-1}/2 rerolls used", end="\n\n")
 
-        # print(f"{players()[p_turn_i()]}'s scorecard:")
         print(
             make_scorecards_pretty(
-                # get_checked_scorecard(all_scorecards()[p_turn_i()], thrown_d()),
-                # all_scorecards()[p_turn_i()],
-                # players(),
-                # p_turn_i(),
                 all_scorecards(),
                 players(),
                 p_turn_i(),
@@ -168,6 +160,8 @@ def ui_game(navigator):
             )
         )
 
+        if err_msg():
+            print(err_msg())
         print(f"it's {players()[p_turn_i()]}'s turn!")
         prompt_text = (
             "press enter to re-roll, specify dice indices to lock/unlock, or "
@@ -176,6 +170,7 @@ def ui_game(navigator):
         )
         prompt_text += "type a combination name to select: "
         usr_input = prompt(prompt_text)
+        set_err_msg("")
 
         # if input is combination name
         if usr_input in create_scorecard():
@@ -189,28 +184,29 @@ def ui_game(navigator):
                     set_d_need_rolling(True)
                     set_d_rerolls(0)
                     set_locked_d([False, False, False, False, False])
-                    new_scorecard_state = all_scorecards()
-                    new_scorecard_state[p_turn_i()] = players_new_scorecard
-                    set_all_scorecards(new_scorecard_state)
+                    new_l_d_state = all_scorecards()
+                    new_l_d_state[p_turn_i()] = players_new_scorecard
+                    set_all_scorecards(new_l_d_state)
                     rotate_players()
                 else:
                     players_new_scorecard[k] = v
-            # if not all_scorecards()[p_turn_i()] == new_scorecard_state:
 
-        # if input is lock-in or unlock
+        # if input is lock-in / unlock
         elif not usr_input == "":
             set_d_need_rolling(False)
             indexes_to_switch = []
             for c in list(usr_input):
                 if c.isnumeric():
                     indexes_to_switch.append(int(c) - 1)
-            new_scorecard_state = []
+            if len(indexes_to_switch) == 0:
+                set_err_msg("please enter a numeric value!")
+            new_l_d_state = []
             for i, e in enumerate(locked_d()):
                 if i in indexes_to_switch:
-                    new_scorecard_state.append(not e)
+                    new_l_d_state.append(not e)
                 else:
-                    new_scorecard_state.append(e)
-            set_locked_d(new_scorecard_state)
+                    new_l_d_state.append(e)
+            set_locked_d(new_l_d_state)
         # if input is re-roll
         else:
             if d_rerolls() <= 2:

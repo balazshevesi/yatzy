@@ -17,7 +17,7 @@
 
 ## A
 
-- [ ] Error handling for all input
+- [x] Error handling for all input
 - [ ] Something that will "amaze" us 😆 (maxi yatzy?, client/server/websocket yatzy?, creating and storing profiles?, save and resume games?, gui?, suggestions?, store statistics?, ai opponent with adjustable difficulty level or maybe a dynamic difficulty?, achievement system? undo redo?)
 
 # Plan
