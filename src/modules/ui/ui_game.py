@@ -36,40 +36,44 @@ def scorecards_are_filled(all_scorecards):
     return False
 
 
+def get_longest_s_in_lst(lst):
+    longest_string = ""
+    for string in lst:
+        if len(string) > len(longest_string):
+            longest_string = string
+    return longest_string
+
+
 def make_scorecards_pretty(all_scorecards, players, p_turn_i, thrown_d):
     rs = ""
 
     table_l_side_width = 17
-    player_n_width = 12
+    player_n_width = len(get_longest_s_in_lst(players)) + 3
 
     # header of the table
-    rs += f"{' ' : <{table_l_side_width-1}}|"
+    rs += f"{' ' : <{table_l_side_width-1}}┃"
     for name in players:
-        rs += f"{name:^{player_n_width-1}}|"
+        rs += f"{name:^{player_n_width-1}}┃"
     rs += "\n"
 
     # # contents of the table
     for i, (k, v) in enumerate(create_scorecard().items()):
-        rs += f"{k:{" "}<{table_l_side_width-2}} |"
+        rs += f"{k:{" "}<{table_l_side_width-2}} ┃"
         for it, name in enumerate(players):
             # if combination is already checked
             if get_checked_scorecard(all_scorecards[it], thrown_d)[k] is None:
-                rs += f"{(str(all_scorecards[it][k]) + " X"):^{player_n_width-1}}|"
+                rs += f"{(str(all_scorecards[it][k]) + " X"):^{player_n_width-1}}┃"
             elif it == p_turn_i:
-                rs += f"{get_checked_scorecard(all_scorecards[it], thrown_d)[k]:^{player_n_width-1}}|"
+                rs += f"{get_checked_scorecard(all_scorecards[it], thrown_d)[k]:^{player_n_width-1}}┃"
             else:
-                rs += f"{" ":^{player_n_width-1}}|"
+                rs += f"{" ":^{player_n_width-1}}┃"
         rs += "\n"
 
     # final line of the table
-    rs += f"{"total" : <{table_l_side_width-1}}|"
+    rs += f"{"total" : <{table_l_side_width-1}}┃"
     for i, name in enumerate(players):
-        rs += f"{get_total_p(all_scorecards[i]):^{player_n_width-1}}|"
+        rs += f"{get_total_p(all_scorecards[i]):^{player_n_width-1}}┃"
     rs += "\n"
-
-    # rs += f"{'total':{" "}<16}| {get_total_p_from_scorecard(scorecard):<5} \n"
-    # for p in players:
-    #     rs += f"{p:{" "}>16}"
 
     return rs
 
@@ -77,7 +81,7 @@ def make_scorecards_pretty(all_scorecards, players, p_turn_i, thrown_d):
 def ui_game(navigator):
     game_difficulty, set_game_difficulty = r.use_state(None)
 
-    players, set_players = r.use_state(["balazs", "johnny d", "john pork"])
+    players, set_players = r.use_state(["balazs", "john pork"])
     p_turn_i, set_p_turn_i = r.use_state(0)
     game_is_running, set_game_is_running = r.use_state(False)
 
@@ -178,23 +182,20 @@ def ui_game(navigator):
             set_d_need_rolling(False)
             players_new_scorecard = {}
             for k, v in all_scorecards()[p_turn_i()].items():
-                if k == usr_input:
-                    if all_scorecards()[p_turn_i()][k] is None:
-                        players_new_scorecard[k] = get_checked_scorecard(
-                            all_scorecards()[p_turn_i()], thrown_d()
-                        )[usr_input]
-                        set_d_need_rolling(True)
-                        set_d_rerolls(0)
-                        set_locked_d([False, False, False, False, False])
-                    else:
-                        players_new_scorecard[k] = v
+                if k == usr_input and all_scorecards()[p_turn_i()][k] is None:
+                    players_new_scorecard[k] = get_checked_scorecard(
+                        all_scorecards()[p_turn_i()], thrown_d()
+                    )[usr_input]
+                    set_d_need_rolling(True)
+                    set_d_rerolls(0)
+                    set_locked_d([False, False, False, False, False])
+                    new_scorecard_state = all_scorecards()
+                    new_scorecard_state[p_turn_i()] = players_new_scorecard
+                    set_all_scorecards(new_scorecard_state)
+                    rotate_players()
                 else:
                     players_new_scorecard[k] = v
-            new_scorecard_state = all_scorecards()
-            new_scorecard_state[p_turn_i()] = players_new_scorecard
-            set_all_scorecards(new_scorecard_state)
-            if not all_scorecards()[p_turn_i()] == new_scorecard_state:
-                rotate_players()
+            # if not all_scorecards()[p_turn_i()] == new_scorecard_state:
 
         # if input is lock-in or unlock
         elif not usr_input == "":

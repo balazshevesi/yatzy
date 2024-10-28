@@ -2,23 +2,23 @@
 
 ## E
 
-- A one player game of Yatzy
-- Text based user interface that guides the user
-- The possibility of showing the scorecard for the player
-- When rolling, guiding the user to what can be done
-- That is, ask which of the dice to hold
-- Also show what possible positions the dice can be put at
+- [x] A one player game of Yatzy
+- [x] Text based user interface that guides the user
+- [x] The possibility of showing the scorecard for the player
+- [x] When rolling, guiding the user to what can be done
+- [x] That is, ask which of the dice to hold
+- [x] Also show what possible positions the dice can be put at
 
 ## C
 
-- Support for two or more players in the game
-- High score list of all played games that are written to a file and loaded when the game starts
-- Should of course show the highest score on top
+- [x] Support for two or more players in the game
+- [ ] High score list of all played games that are written to a file and loaded when the game starts
+- [ ] Should of course show the highest score on top
 
 ## A
 
-- Error handling for all input
-- Something that will "amaze" us 😆 (maxi yatzy?, client/server/websocket yatzy?, creating and storing profiles?, save and resume games?, gui?, suggestions?, store statistics?, ai opponent with adjustable difficulty level or maybe a dynamic difficulty?, achievement system? undo redo?)
+- [ ] Error handling for all input
+- [ ] Something that will "amaze" us 😆 (maxi yatzy?, client/server/websocket yatzy?, creating and storing profiles?, save and resume games?, gui?, suggestions?, store statistics?, ai opponent with adjustable difficulty level or maybe a dynamic difficulty?, achievement system? undo redo?)
 
 # Plan
 
