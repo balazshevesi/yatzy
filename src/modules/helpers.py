@@ -133,18 +133,18 @@ def get_total_p(scorecard) -> int:
 # since these scorecards are blank at first, all the values are set to None
 def create_scorecard():
     return {
-        "ones": 10,  # the sum of all dice showing the number 1
-        "twos": 10,  # the sum of all dice showing the number 2
-        "threes": 10,  # the sum of all dice showing the number 3
-        "fours": 10,  # the sum of all dice showing the number 4
-        "fives": 10,  # the sum of all dice showing the number 5
-        "sixes": 10,  # the sum of all dice showing the number 6
-        "one_pair": 10,  # two dice showing the same number, score: sum of those two dice
-        "two_pair": 10,  # two different pairs of dice. score: sum of dice in those two pairs
-        "three_of_a_kind": 10,  # three dice showing the same number, score: sum of those three dice
-        "four_of_a_kind": 10,  # four dice with the same number, score: Sum of those four dice
-        "small_straight": 10,  # the combination 1-2-3-4-5, score: 15 points (sum of all the dice)
-        "large_straight": 10,  # the combination 2-3-4-5-6, score: 20 points (sum of all the dice)
+        "ones": None,  # the sum of all dice showing the number 1
+        "twos": None,  # the sum of all dice showing the number 2
+        "threes": None,  # the sum of all dice showing the number 3
+        "fours": None,  # the sum of all dice showing the number 4
+        "fives": None,  # the sum of all dice showing the number 5
+        "sixes": None,  # the sum of all dice showing the number 6
+        "one_pair": None,  # two dice showing the same number, score: sum of those two dice
+        "two_pair": None,  # two different pairs of dice. score: sum of dice in those two pairs
+        "three_of_a_kind": None,  # three dice showing the same number, score: sum of those three dice
+        "four_of_a_kind": None,  # four dice with the same number, score: Sum of those four dice
+        "small_straight": None,  # the combination 1-2-3-4-5, score: 15 points (sum of all the dice)
+        "large_straight": None,  # the combination 2-3-4-5-6, score: 20 points (sum of all the dice)
         "full_house": None,  # any set of three combined with a different pair, score: Sum of all the dice
         "chance": None,  # any combination of dice, score: sum of all the dice
         "yatzy": None,  # all five dice with the same number, score: 50 points

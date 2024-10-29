@@ -10,6 +10,7 @@ import time
 import sys
 import os
 
+# stuffs to fix import paths, maybe not needed actually?
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from modules.helpers import prompt  # Your normal imports here
 

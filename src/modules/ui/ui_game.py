@@ -39,6 +39,33 @@ def ui_game(navigator):
             new_state_for_all_scorecards.append(create_scorecard())
         set_all_scorecards(new_state_for_all_scorecards)
 
+    def check_comb_on_scorecard(input_comb: str) -> str:
+        set_d_need_rolling(False)
+        updated_scorecard = all_scorecards()[p_turn_i()].copy()
+
+        # if input_comb is a valid key for the scorecard, and if it's already checked
+        if input_comb in updated_scorecard and updated_scorecard[input_comb] is None:
+            # Update the specific combination score
+            updated_scorecard[input_comb] = get_checked_scorecard(
+                updated_scorecard, thrown_d()
+            )[input_comb]
+
+            # Reset dice and reroll state
+            set_d_need_rolling(True)
+            set_d_rerolls(0)
+            set_locked_d([False, False, False, False, False])
+
+            # Update the full scorecard list with the modified player scorecard
+            all_scores = all_scorecards()
+            all_scores[p_turn_i()] = updated_scorecard
+            set_all_scorecards(all_scores)
+            rotate_players()
+            return "successfully checked"
+        elif input_comb not in updated_scorecard:
+            return "invalid combination name"
+        elif updated_scorecard[input_comb] is None:
+            return "combination is already checked"
+
     # r.use_effect(init_player_scorecards, [players()])
 
     def rotate_players():
@@ -47,8 +74,17 @@ def ui_game(navigator):
         # handle bot stuffs
         match players()[p_turn_i()]:
             case "bot_easy" | "bot_normal" | "bot_hard":
-                # TODO write code for bot moves
-                rotate_players()
+                # TODO write code for bot all different bots
+
+                # this is a recursive function, it does not have a base-case, but in it should never loop infinitely as long as "scorecards_are_filled" works and is correctly called
+                def check_scorecard():
+                    score_card_len = len(create_scorecard())
+                    random_key_index = rnd.randint(0, score_card_len - 1)
+                    random_key = list(create_scorecard().keys())[random_key_index]
+                    if check_comb_on_scorecard(random_key) != "successfully checked":
+                        check_scorecard()
+
+                check_scorecard()
 
     # initiate state for datetime
     date_time, set_date_time = r.use_state()
@@ -74,7 +110,6 @@ def ui_game(navigator):
         for i, player in enumerate(players()):
             add_score_to_file(player, get_total_p(all_scorecards()[i]))
             pass
-        # TODO write a function that adds the name and the score to the json file
         # TODO print who actually won
         prompt("ya done")
 
@@ -115,22 +150,7 @@ def ui_game(navigator):
 
         # if input is combination name
         if usr_input in create_scorecard():
-            set_d_need_rolling(False)
-            players_new_scorecard = {}
-            for k, v in all_scorecards()[p_turn_i()].items():
-                if k == usr_input and all_scorecards()[p_turn_i()][k] is None:
-                    players_new_scorecard[k] = get_checked_scorecard(
-                        all_scorecards()[p_turn_i()], thrown_d()
-                    )[usr_input]
-                    set_d_need_rolling(True)
-                    set_d_rerolls(0)
-                    set_locked_d([False, False, False, False, False])
-                    new_l_d_state = all_scorecards()
-                    new_l_d_state[p_turn_i()] = players_new_scorecard
-                    set_all_scorecards(new_l_d_state)
-                    rotate_players()
-                else:
-                    players_new_scorecard[k] = v
+            check_comb_on_scorecard(usr_input)
 
         # if input is lock-in / unlock
         elif not usr_input == "":
@@ -140,7 +160,9 @@ def ui_game(navigator):
                 if c.isnumeric():
                     indexes_to_switch.append(int(c) - 1)
             if len(indexes_to_switch) == 0:
-                set_err_msg("please enter a numeric value!")
+                set_err_msg(
+                    "please enter a numeric value if you want to lock/unlock the dice"
+                )
             new_l_d_state = []
             for i, e in enumerate(locked_d()):
                 if i in indexes_to_switch:

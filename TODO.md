@@ -6,20 +6,16 @@ Project Description
 
 ### Todo
 
-- [ ] build player vs computer  
 - [ ] rework "promp" function and make the navigator global (kinda like a contex)  
-- [ ] make pretty  
-- [ ] Store high-score-list-file (.json, .yaml, .md)  
 - [ ] Undo redo system  
 - [ ] Achievement system  
 - [ ] Intelligent computer opponent with difficulty levels, easy, medium, hard, dynamic  
 - [ ] Save and resume game  
 - [ ] Profiles system  
-- [ ] Multiple player support  
-- [ ] Error handle all input (pay extra attention to that input always returns a string)  
 
 ### In Progress
 
+- [ ] build player vs computer  
 
 ### Done ✓
 
@@ -29,4 +25,8 @@ Project Description
 - [x] write functions for checking score  
 - [x] build player vs player  
 - [x] make scorecard prettier  
+- [x] Store high-score-list-file (.json, .yaml, .md)  
+- [x] Multiple player support  
+- [x] Error handle all input (pay extra attention to that input always returns a string)  
+- [x] make pretty  
 

@@ -12,8 +12,8 @@
 ## C
 
 - [x] Support for two or more players in the game
-- [ ] High score list of all played games that are written to a file and loaded when the game starts
-- [ ] Should of course show the highest score on top
+- [x] High score list of all played games that are written to a file and loaded when the game starts
+- [x] Should of course show the highest score on top
 
 ## A
 
