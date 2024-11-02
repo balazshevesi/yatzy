@@ -1,20 +1,33 @@
+# this file implements a similar rendering-system and state-system that is used by React.js (https://react.dev/)
+# every time the application state changes, the view gets completely wiped, and a new view is calculated (by invoking ui functions), the ui is effectively a function of state
+
 import os
 
-ui_entry_func = None
+# instead of invoking the rerender() function when the application state changes, we switch this flag to true, which then gets picked up the while loop in render()
+# we need this flag because if we invoke rerender() directly, python stops executing the ui function, meaning; we can only update one state at a time (javascript handles this differently)
 rerender_needed = False
 
-all_state = []
-state_cursor = 0
-
-all_effects = []
-effects_cursor = 0
+# declares the variables for storing state, effects, and the cursors
+all_state, all_effects = [], []
+effects_cursor, state_cursor = 0, 0
 
 
 def clear_terminal():
+    """clears the terminal, may or may not be cross-plattform compatible"""
     os.system("cls" if os.name == "nt" else "printf '\033c'")
 
 
 def use_effect(func, dependencies=[]):
+    """
+    similar to useEffect in React (https://react.dev/reference/react/useEffect)
+    it takes two parameters, func, and a dependency list
+    if the ui rerenders, and the dependencies differ from the last rerender then the "func" is called
+
+    important note:
+        all hooks (functions who's names start with use_) should only be called at the top level of functions,
+        meaning not called conditionally, otherwise the cursor logic will be screwed up, similar to "rules of hooks" (https://react.dev/reference/rules#rules-of-hooks)
+    """
+
     global effects_cursor
     global all_effects
 
@@ -26,7 +39,7 @@ def use_effect(func, dependencies=[]):
         for i, d in enumerate(dependencies):
             if not d == all_effects[effects_cursor][1]:
                 changed = True
-                all_effects[effects_cursor][1] = d
+                all_effects[effects_cursor][1] = d  # update the dependencies
         if changed:
             # input("deps changed")
             func()
@@ -35,7 +48,16 @@ def use_effect(func, dependencies=[]):
 
 
 def use_state(initial_state="") -> tuple:
-    """function for creating game state, first arg: key, second arg: state"""
+    """
+    similar to useState in React (https://react.dev/reference/react/useState),
+    function for creating state
+    returns two functions, one for getting the state, one for setting the state
+
+    important note:
+        all hooks (functions who's names start with use_) should only be called at the top level of functions,
+        meaning not called conditionally, otherwise the cursor logic will be screwed up, similar to "rules of hooks" (https://react.dev/reference/rules#rules-of-hooks)
+    """
+
     global state_cursor
     global all_state
     # we freeze the cursor because we want the current value for state_cursor to be stored within the create_state closure
@@ -46,7 +68,7 @@ def use_state(initial_state="") -> tuple:
         all_state.append(initial_state)
 
     def get_state() -> dict:
-        """remember to always call the function to get the value"""
+        """remember to always call the function to get the value, and always treat it as if it was immutable"""
         global all_state
         return all_state[frozen_cursor]
 
@@ -56,30 +78,30 @@ def use_state(initial_state="") -> tuple:
         global rerender_needed
         rerender_needed = True
         all_state[frozen_cursor] = new_state
-        # rerender()
 
     state_cursor += 1
 
     return get_state, update_state
 
 
-def rerender():
-    """reset the cursor and clear terminal, then call the entry function to render UI"""
+def rerender(ui_entry_func):
+    """reset the cursors and clear terminal, then call the entry function to render UI"""
     global state_cursor, effects_cursor
-    state_cursor = 0
-    effects_cursor = 0
+    state_cursor, effects_cursor = 0, 0
     clear_terminal()
-    # print(all_state)
     ui_entry_func()
 
 
-def render(ui_entry_func_param):
-    """initial render function to start the UI rendering cycle"""
-    global ui_entry_func
-    ui_entry_func = ui_entry_func_param
+def render(ui_entry_func):
+    """
+    initial render function to start the UI rendering cycle
+    takes an "ui_entry_func", that will be the entrypoint of the ui
+    kind of like createRoot (or ReactDOM.render() in older versions) in react (https://react.dev/reference/react-dom/client/createRoot)
+    """
     global rerender_needed
-    while True:
+    another_rerender_needed = True
+    while another_rerender_needed:
         rerender_needed = False
-        rerender()
+        rerender(ui_entry_func)
         if not rerender_needed:
-            break
+            another_rerender_needed = False

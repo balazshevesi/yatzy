@@ -1,16 +1,20 @@
 import random as rnd
+
+from modules.scoring import *
 from .assets import dice
 
 
 def prompt(str: str):
+    """input wrapper, let's the user exit the program whenever"""
     input_value = input(str)
     match input_value:
         case "exit" | "quit" | "close" | ":q":
-            quit()
+            raise SystemExit
     return input_value
 
 
 def get_longest_s_in_lst(lst):
+    """returns the longest string in a list"""
     longest_string = ""
     for string in lst:
         if len(string) > len(longest_string):
@@ -18,120 +22,12 @@ def get_longest_s_in_lst(lst):
     return longest_string
 
 
-# * yatzy score helpers:
-
-
-def get_one_pair(thrown_d) -> int:
-    return_value = 0
-    for i in range(1, 7, 1):
-        if thrown_d.count(i) >= 2:
-            pair_sum = i * 2
-            if pair_sum > return_value:
-                return_value = pair_sum
-    return return_value
-
-
-def get_two_pair(thrown_d) -> int:
-    first_pair_sum = 0
-    for i in range(1, 7, 1):
-        if thrown_d.count(i) == 2:
-            pair_sum = i * 2
-            if pair_sum > first_pair_sum:
-                first_pair_sum = pair_sum
-    second_pair_sum = 0
-    for i in range(1, 7, 1):
-        if thrown_d.count(i) == 2 and not i * 2 == first_pair_sum:
-            pair_sum = i * 2
-            if pair_sum > second_pair_sum:
-                second_pair_sum = pair_sum
-    if first_pair_sum == 0 or second_pair_sum == 0:  # if it's only a one pair, return 0
-        return 0
-    return first_pair_sum + second_pair_sum
-
-
-def get_three_of_a_kind(thrown_d) -> int:
-    return_value = 0
-    for i in range(1, 7, 1):
-        if thrown_d.count(i) >= 3:
-            three_o_a_k_sum = i * 3
-            if three_o_a_k_sum > return_value:
-                return_value = three_o_a_k_sum
-    return return_value
-
-
-def get_four_of_a_kind(thrown_d) -> int:
-    return_value = 0
-    for i in range(1, 7, 1):
-        if thrown_d.count(i) >= 4:
-            four_o_a_k_sum = i * 4
-            if four_o_a_k_sum > return_value:
-                return_value = four_o_a_k_sum
-    return return_value
-
-
-def get_small_straight(thrown_d) -> int:
-    required_numbers = {1, 2, 3, 4, 5}
-    if required_numbers.issubset(thrown_d):
-        return 15
-    return 0
-
-
-def get_large_straight(thrown_d) -> int:
-    required_numbers = {2, 3, 4, 5, 6}
-    if required_numbers.issubset(thrown_d):
-        return 20
-    return 0
-
-
-def get_full_house(thrown_d) -> int:
-    three_of_a_kind_sum = get_three_of_a_kind(thrown_d)
-    pair_sum = get_one_pair(thrown_d)
-
-    if three_of_a_kind_sum == 0 or pair_sum == 0:
-        return 0
-    if three_of_a_kind_sum // 3 == pair_sum // 2:
-        return 0
-    return three_of_a_kind_sum + pair_sum
-
-
-def get_chance(thrown_d) -> int:
-    return sum(thrown_d)
-
-
-def get_yatzy(thrown_d) -> int:
-    if len(set(thrown_d)) == 1:  # All dice are the same
-        return 50
-    return 0
-
-
-def get_upper_section_bonus(scorecard) -> int:
-    bonus_sum = 0
-    for k, v in scorecard.items():
-        match k:
-            case "ones" | "twos" | "threes" | "fours" | "fives" | "sixes":
-                if v is not None:
-                    bonus_sum += v
-    if bonus_sum >= 63:
-        return 50
-    else:
-        return 0
-
-
-def get_total_p(scorecard) -> int:
-    total = 0
-    for k, v in scorecard.items():
-        if v is not None:
-            total += v
-    total += get_upper_section_bonus(scorecard)
-    return total
-
-
-# * yatzy scorecard helpers
-
-
-# returns a dict with all the possible combinations as keys
-# since these scorecards are blank at first, all the values are set to None
 def create_scorecard():
+    """
+    returns a dict with all the possible combinations as keys
+    since these scorecards are blank at first, all the values are set to None
+    """
+
     return {
         "ones": None,  # the sum of all dice showing the number 1
         "twos": None,  # the sum of all dice showing the number 2
@@ -152,10 +48,13 @@ def create_scorecard():
     }
 
 
-# returns a dictionary that includes the same keys as "create_scorecard()"
-# the values are the points that that combination of dice would yield
-# if the value returned any key is None, then that's because the scoreboard already has that combination locked-in
 def get_checked_scorecard(scoreboard, thrown_d):
+    """
+    returns a dictionary that includes the same keys as "create_scorecard()"
+    the values for the keys are the points that that combination of dice will yield if they are chosen
+    if the value returned a key is None, then that's because the scoreboard already has that combination locked-in
+    """
+
     return {
         "ones": thrown_d.count(1) * 1 if scoreboard["ones"] is None else None,
         "twos": thrown_d.count(2) * 2 if scoreboard["twos"] is None else None,
@@ -198,7 +97,9 @@ def get_checked_scorecard(scoreboard, thrown_d):
     }
 
 
-def make_scorecards_pretty(all_scorecards, players, p_turn_i, thrown_d):
+def make_scorecards_pretty(all_scorecards, players, p_turn_i, thrown_d) -> str:
+    """returns a table of all the scorecards, shows and "X" next to the combination that has already been chosen"""
+
     rs = ""
 
     table_l_side_width = 17
@@ -239,6 +140,8 @@ def make_scorecards_pretty(all_scorecards, players, p_turn_i, thrown_d):
 
 
 def scorecards_are_filled(all_scorecards: list) -> bool:
+    """returns true if all scorecards are filled, meaning if the game is finished"""
+
     vals = []
     for scorecard in all_scorecards:
         for k, v in create_scorecard().items():
@@ -249,10 +152,6 @@ def scorecards_are_filled(all_scorecards: list) -> bool:
 
 
 # * dice helpers
-
-
-def throw_dice():
-    return rnd.randint(1, 6)
 
 
 def make_dice_pretty(dice_lst, locked_dice_lst):
@@ -272,6 +171,11 @@ def make_dice_pretty(dice_lst, locked_dice_lst):
 
 
 def roll_dice(set_thrown_d, thrown_d, locked_d, set_d_rerolls, d_rerolls):
+    """rolls the dice, and also updates their state"""
+
+    def throw_dice():
+        return rnd.randint(1, 6)
+
     set_thrown_d(
         [
             throw_dice() if not locked_d[0] else thrown_d[0],

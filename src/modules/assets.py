@@ -1,3 +1,5 @@
+# this file is meant for storing ascii art
+
 yatzy_banner = """
   ___    ___ ________  _________  ________      ___    ___ 
  |\  \  /  /|\   __  \|\___   ___|\_____  \    |\  \  /  /|

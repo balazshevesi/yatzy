@@ -2,6 +2,11 @@ from .. import renderer as r
 
 
 def use_navigation(initial_path=""):
+    """
+    returns a navigations dict
+    this hook basically just wraps a use_state and provides methods for quickly manipulating the state
+    """
+
     nav, set_nav = r.use_state(initial_path)
 
     def go_back():

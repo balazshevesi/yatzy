@@ -1,37 +1,26 @@
 from modules.helpers import *
 from modules import renderer as r
-from modules.assets import yatzy_banner
+from modules import file_operations as f_ops
 from datetime import datetime
-from ..assets import dice
+from modules.scoring import get_total_p
+
 import random as rnd
-
-import time
-import json
-
-
-def add_score_to_file(name: str, score: int):
-    now = datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
-    with open("high_scores.json", "r+") as file:
-        json_data = json.load(file)
-        json_data["high_scores"].append([name, score, now])
-        json_data["high_scores"].sort(key=lambda x: x[1], reverse=True)
-        file.seek(0)
-        json.dump(json_data, file, indent=4)
-        file.truncate()
 
 
 def ui_game(navigator):
+    """ui for the game"""
+
+    # initiate state for the game
     players, set_players = r.use_state([""])
     p_turn_i, set_p_turn_i = r.use_state(0)
     game_is_running, set_game_is_running = r.use_state(False)
+    all_scorecards, set_all_scorecards = r.use_state([create_scorecard()])
 
     # initiate state for dice
     d_rerolls, set_d_rerolls = r.use_state(0)
     thrown_d, set_thrown_d = r.use_state([])
     locked_d, set_locked_d = r.use_state([False, False, False, False, False])
     d_need_rolling, set_d_need_rolling = r.use_state(True)
-
-    all_scorecards, set_all_scorecards = r.use_state([create_scorecard()])
 
     def init_player_scorecards():
         new_state_for_all_scorecards = []
@@ -108,8 +97,7 @@ def ui_game(navigator):
         print("players()", players())
         print("all_scorecards()", all_scorecards())
         for i, player in enumerate(players()):
-            add_score_to_file(player, get_total_p(all_scorecards()[i]))
-            pass
+            f_ops.add_score_to_file(player, get_total_p(all_scorecards()[i]))
         # TODO print who actually won
         prompt("ya done")
 

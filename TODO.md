@@ -16,6 +16,7 @@ Project Description
 ### In Progress
 
 - [ ] build player vs computer  
+- [ ] think about how the algorithms for the different bots should behave  
 
 ### Done ✓
 

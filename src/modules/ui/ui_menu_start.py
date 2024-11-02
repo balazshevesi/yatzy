@@ -1,28 +1,14 @@
 from modules.helpers import prompt
-from modules import renderer as r
+from modules import file_operations as f_op
 from modules.assets import yatzy_banner
-import json
 import time
 
 
-def sort_high_scores():
-    with open("high_scores.json", "r+") as file:
-        json_data = json.load(file)
-        json_data["high_scores"].sort(key=lambda x: x[1], reverse=True)
-        file.seek(0)
-        json.dump(json_data, file, indent=4)
-        file.truncate()
-
-
-def get_high_score():
-    with open("high_scores.json", "r") as file:
-        data = json.load(file)
-    return data
-
-
 def ui_menu_start(navigator):
-    sort_high_scores()
-    high_score_data = get_high_score()
+    """the start screen"""
+
+    f_op.sort_high_scores()
+    high_score_data = f_op.get_high_score()
 
     art = yatzy_banner
     art_lines = art.split("\n")
