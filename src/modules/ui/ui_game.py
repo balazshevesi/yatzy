@@ -24,7 +24,7 @@ def ui_game(navigator):
 
     def init_player_scorecards():
         new_state_for_all_scorecards = []
-        for i in players():
+        for _ in players():
             new_state_for_all_scorecards.append(create_scorecard())
         set_all_scorecards(new_state_for_all_scorecards)
 
@@ -60,31 +60,24 @@ def ui_game(navigator):
     def rotate_players():
         set_p_turn_i((p_turn_i() + 1) % len(players()))
 
-        # handle bot stuffs
-        match players()[p_turn_i()]:
-            case "bot_easy" | "bot_normal" | "bot_hard":
-                # TODO write code for bot all different bots
+        # handle bot moves
+        if players()[p_turn_i()] == "bot":
+            # this is a recursive function, it does not have a base-case, but in it should never loop infinitely as long as "scorecards_are_filled" works and is correctly called
+            def check_scorecard():
+                score_card_len = len(create_scorecard())
+                random_key_index = rnd.randint(0, score_card_len - 1)
+                random_key = list(create_scorecard().keys())[random_key_index]
+                if check_comb_on_scorecard(random_key) != "successfully checked":
+                    check_scorecard()
 
-                # this is a recursive function, it does not have a base-case, but in it should never loop infinitely as long as "scorecards_are_filled" works and is correctly called
-                def check_scorecard():
-                    score_card_len = len(create_scorecard())
-                    random_key_index = rnd.randint(0, score_card_len - 1)
-                    random_key = list(create_scorecard().keys())[random_key_index]
-                    if check_comb_on_scorecard(random_key) != "successfully checked":
-                        check_scorecard()
-
-                check_scorecard()
-
-    # initiate state for datetime
-    date_time, set_date_time = r.use_state()
-    r.use_effect(lambda: set_date_time(datetime.now().strftime("%d-%m-%Y_%H:%M:%S")))
+            check_scorecard()
 
     err_msg, set_err_msg = r.use_state("")
 
     # set players
     if not game_is_running():
         usr_input = prompt(
-            "Enter player names separated by commas. To add bots, use 'bot_easy', 'bot_normal', or 'bot_hard': "
+            "Enter player names separated by commas. To add bots, enter 'bot': "
         )
         set_players([player_name.strip() for player_name in usr_input.split(",")])
         set_game_is_running(True)
@@ -94,12 +87,19 @@ def ui_game(navigator):
     # check if game is finished
     if scorecards_are_filled(all_scorecards()) and game_is_running():
         set_game_is_running(False)
-        print("players()", players())
-        print("all_scorecards()", all_scorecards())
         for i, player in enumerate(players()):
             f_ops.add_score_to_file(player, get_total_p(all_scorecards()[i]))
-        # TODO print who actually won
-        prompt("ya done")
+        highest_scorecard = 0
+        highest_scorecard_player_i = 0
+        for i, scorecard in enumerate(all_scorecards()):
+            if i == 0 or get_total_p(scorecard) > get_total_p(highest_scorecard):
+                highest_scorecard = scorecard
+                highest_scorecard_player_i = i
+        print(
+            f"{players()[highest_scorecard_player_i]} won with {get_total_p(highest_scorecard)} total points!"
+        )
+        prompt("press enter to go back to the start-screen")
+        navigator["set_path"]("start")
 
     if game_is_running():
         if d_need_rolling():

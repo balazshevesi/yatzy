@@ -25,8 +25,6 @@ def get_two_pair(thrown_d) -> int:
             pair_sum = i * 2
             if pair_sum > second_pair_sum:
                 second_pair_sum = pair_sum
-    if first_pair_sum == 0 or second_pair_sum == 0:  # if it's only a one pair, return 0
-        return 0
     return first_pair_sum + second_pair_sum
 
 
@@ -52,7 +50,7 @@ def get_four_of_a_kind(thrown_d) -> int:
 
 def get_small_straight(thrown_d) -> int:
     required_numbers = {1, 2, 3, 4, 5}
-    if required_numbers.issubset(thrown_d):
+    if required_numbers.issubset(set(thrown_d)):
         return 15
     return 0
 

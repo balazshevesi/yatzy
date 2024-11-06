@@ -6,17 +6,12 @@ Project Description
 
 ### Todo
 
-- [ ] rework "promp" function and make the navigator global (kinda like a contex)  
-- [ ] Undo redo system  
-- [ ] Achievement system  
-- [ ] Intelligent computer opponent with difficulty levels, easy, medium, hard, dynamic  
-- [ ] Save and resume game  
-- [ ] Profiles system  
+- [ ] write a readme.md for github  
+- [ ] write the report  
+- [ ] move code to juptyter  
 
 ### In Progress
 
-- [ ] build player vs computer  
-- [ ] think about how the algorithms for the different bots should behave  
 
 ### Done ✓
 
@@ -29,5 +24,8 @@ Project Description
 - [x] Store high-score-list-file (.json, .yaml, .md)  
 - [x] Multiple player support  
 - [x] Error handle all input (pay extra attention to that input always returns a string)  
+- [x] make win-screen  
 - [x] make pretty  
+- [x] finish the "help" and about (credits) route  
+- [x] build player vs computer  
 

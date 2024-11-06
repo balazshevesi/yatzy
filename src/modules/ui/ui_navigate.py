@@ -26,4 +26,3 @@ def ui_navigate(navigator, question: str, lst_of_alts: list):
     except:
         navigator["reload"]()
         set_err_msg("please enter a valid number")
-        pass

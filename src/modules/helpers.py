@@ -29,20 +29,20 @@ def create_scorecard():
     """
 
     return {
-        "ones": None,  # the sum of all dice showing the number 1
-        "twos": None,  # the sum of all dice showing the number 2
-        "threes": None,  # the sum of all dice showing the number 3
-        "fours": None,  # the sum of all dice showing the number 4
-        "fives": None,  # the sum of all dice showing the number 5
-        "sixes": None,  # the sum of all dice showing the number 6
-        "one_pair": None,  # two dice showing the same number, score: sum of those two dice
-        "two_pair": None,  # two different pairs of dice. score: sum of dice in those two pairs
-        "three_of_a_kind": None,  # three dice showing the same number, score: sum of those three dice
-        "four_of_a_kind": None,  # four dice with the same number, score: Sum of those four dice
-        "small_straight": None,  # the combination 1-2-3-4-5, score: 15 points (sum of all the dice)
-        "large_straight": None,  # the combination 2-3-4-5-6, score: 20 points (sum of all the dice)
-        "full_house": None,  # any set of three combined with a different pair, score: Sum of all the dice
-        "chance": None,  # any combination of dice, score: sum of all the dice
+        "ones": 11,  # the sum of all dice showing the number 1
+        "twos": 11,  # the sum of all dice showing the number 2
+        "threes": 11,  # the sum of all dice showing the number 3
+        "fours": 11,  # the sum of all dice showing the number 4
+        "fives": 11,  # the sum of all dice showing the number 5
+        "sixes": 11,  # the sum of all dice showing the number 6
+        "one_pair": 11,  # two dice showing the same number, score: sum of those two dice
+        "two_pair": 11,  # two different pairs of dice. score: sum of dice in those two pairs
+        "three_of_a_kind": 11,  # three dice showing the same number, score: sum of those three dice
+        "four_of_a_kind": 11,  # four dice with the same number, score: Sum of those four dice
+        "small_straight": 11,  # the combination 1-2-3-4-5, score: 15 points (sum of all the dice)
+        "large_straight": 11,  # the combination 2-3-4-5-6, score: 20 points (sum of all the dice)
+        "full_house": 11,  # any set of three combined with a different pair, score: Sum of all the dice
+        "chance": 11,  # any combination of dice, score: sum of all the dice
         "yatzy": None,  # all five dice with the same number, score: 50 points
         # "upper_section_bonus": None,  # all five dice with the same number, score: 50 points
     }
@@ -151,10 +151,9 @@ def scorecards_are_filled(all_scorecards: list) -> bool:
     return False
 
 
-# * dice helpers
-
-
 def make_dice_pretty(dice_lst, locked_dice_lst):
+    """returns a big string that all the dice"""
+
     sprite_height = 6
     sprite_width = 11
 

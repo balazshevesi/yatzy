@@ -3,8 +3,7 @@
 
 import os
 
-# instead of invoking the rerender() function when the application state changes, we switch this flag to true, which then gets picked up the while loop in render()
-# we need this flag because if we invoke rerender() directly, python stops executing the ui function, meaning; we can only update one state at a time (javascript handles this differently)
+# we need this flag because if we invoke rerender() directly after a state change python does not finish executing the function (because of recursion), meaning; we can only update one state at a time
 rerender_needed = False
 
 # declares the variables for storing state, effects, and the cursors
@@ -89,7 +88,10 @@ def rerender(ui_entry_func):
     global state_cursor, effects_cursor
     state_cursor, effects_cursor = 0, 0
     clear_terminal()
-    ui_entry_func()
+    ui_entry_func()  # processblockning
+    # clear any unused state (probably riddled with buggs because the clearing happens after the rerender, so the wrong state could still be returned)
+    if not state_cursor == len(all_state) - 1:
+        del all_state[state_cursor:]
 
 
 def render(ui_entry_func):
